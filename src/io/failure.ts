@@ -18,11 +18,11 @@ export class Failure<A> extends IO<A> {
     return this.value;
   }
 
-  static catch = <A>(initial: any): Failure<A> => {
+  static catch<A>(initial: any): IO<A> {
     return new Failure(mapUnknownToError(initial));
-  };
+  }
 
-  static fromError = <A>(error: Error): Failure<A> => {
+  static of<A>(error: Error): IO<A> {
     return new Failure(error);
-  };
+  }
 }

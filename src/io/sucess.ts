@@ -17,7 +17,7 @@ export class Success<A> extends IO<A> {
     throw new Error("Error called on success");
   }
 
-  static of = <A>(a: A): Success<A> => {
+  static of<A>(a: A): IO<A> {
     return new Success(a);
-  };
+  }
 }

@@ -9,5 +9,7 @@ export class None<A> extends Option<A> {
     return false;
   }
 
-  static of = <A>(): Option<A> => new None<A>();
+  static of<A>(): Option<A> {
+    return new None<A>();
+  }
 }

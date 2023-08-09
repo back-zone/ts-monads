@@ -15,84 +15,85 @@ export abstract class IO<A> {
 
   public abstract error(): Error;
 
-  static f = <A>(f: () => A): IO<A> => {
+  static from<A>(f: () => A): IO<A> {
     try {
-      return new Success(f());
+      return Success.of(f());
     } catch (e) {
       return Failure.catch(e);
     }
-  };
+  }
 
-  static pure = <A>(v: A): IO<A> => IO.f(() => v);
+  static pure<A>(v: A): IO<A> {
+    return IO.from(() => v);
+  }
 
-  static promiseF = async <A>(p: () => Promise<A>): Promise<IO<A>> =>
-    p()
+  static promiseOf<A>(p: () => Promise<A>): Promise<IO<A>> {
+    return p()
       .then((a) => IO.pure(a))
       .catch((error) => Failure.catch(mapUnknownToError(error)));
+  }
 
-  static promise = async <A>(p: Promise<A>): Promise<IO<A>> =>
-    await IO.promiseF(() => p);
+  static promise<A>(p: Promise<A>): Promise<IO<A>> {
+    return IO.promiseOf(() => p);
+  }
 
-  public map = <B>(f: (a: A) => B): IO<B> => {
+  public map<B>(f: (a: A) => B): IO<B> {
     if (this.isSuccess()) {
-      return IO.f(() => f(this.get()));
+      return IO.from(() => f(this.get()));
     }
     return Failure.catch(this.error());
-  };
+  }
 
-  public flatMap = <B>(f: (a: A) => IO<B>): IO<B> => {
+  public flatMap<B>(f: (a: A) => IO<B>): IO<B> {
     if (this.isSuccess()) {
       return f(this.get());
     }
     return Failure.catch(this.error());
-  };
+  }
 
-  public fold = <B>(
-    successFunc: (_: A) => B,
-    errorFunc: (_: Error) => B
-  ): B => {
+  public fold<B>(successFunc: (_: A) => B, errorFunc: (_: Error) => B): B {
     if (this.isSuccess()) {
       return successFunc(this.get());
     }
     return errorFunc(this.error());
-  };
+  }
 
-  public flatten = <B>(f: (_: A) => B): B => {
+  public flatten<B>(f: (_: A) => B): B {
     if (this.isSuccess()) {
       return f(this.get());
     }
 
     throw this.error();
-  };
+  }
 
-  public orElse = (defaultValue: A): A => {
+  public orElse(defaultValue: A): A {
     if (this.isSuccess()) {
       return this.get();
     }
     return defaultValue;
-  };
+  }
 
-  public mapError = (errorHandler: (_: Error) => A): A => {
+  public mapError(errorHandler: (_: Error) => A): A {
     if (this.isSuccess()) {
       return this.get();
     }
 
     return errorHandler(this.error());
-  };
+  }
 
-  public toEither = (): Either<Error, A> => {
+  public toEither(): Either<Error, A> {
     if (this.isSuccess()) {
       return Right.of(this.get());
     }
 
     return Left.of(this.error());
-  };
+  }
 
-  public toOption = (): Option<A> => {
+  public toOption(): Option<A> {
     if (this.isSuccess()) {
       return Some.of(this.get());
     }
 
     return None.of<A>();
-  };
+  }
 }

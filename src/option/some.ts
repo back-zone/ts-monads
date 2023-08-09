@@ -13,5 +13,7 @@ export class Some<A> extends Option<A> {
     return true;
   }
 
-  static of = <A>(value: A): Option<A> => new Some(value);
+  static of<A>(value: A): Option<A> {
+    return new Some(value);
+  }
 }

@@ -17,5 +17,7 @@ export class Left<L, R> extends Either<L, R> {
     throw new Error("right() called on Left");
   }
 
-  static of = <L, R>(value: L): Either<L, R> => new Left(value);
+  static of<L, R>(value: L): Either<L, R> {
+    return new Left(value);
+  }
 }
