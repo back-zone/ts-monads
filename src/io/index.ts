@@ -1,7 +1,5 @@
 import { Either, Left, Right } from "../either";
-import { Option } from "../option";
-import { None } from "../option/none";
-import { Some } from "../option/some";
+import { None, Option, Some } from "../option";
 import mapUnknownToError from "../utils/mapUnknownToError";
 
 export abstract class IO<A> {
