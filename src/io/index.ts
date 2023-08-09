@@ -21,14 +21,17 @@ export abstract class IO<A> {
     return IO.from(() => v);
   }
 
-  static promiseOf<A>(p: () => Promise<A>): Promise<IO<A>> {
-    return p()
-      .then((a) => IO.pure(a))
-      .catch((error) => Failure.catch(mapUnknownToError(error)));
+  static async promiseOf<A>(p: () => Promise<A>): Promise<IO<A>> {
+    try {
+      const initial = await Promise.resolve(p());
+      return Success.of(initial);
+    } catch (error) {
+      return Failure.catch(error);
+    }
   }
 
-  static promise<A>(p: Promise<A>): Promise<IO<A>> {
-    return IO.promiseOf(() => p);
+  static async promise<A>(p: Promise<A>): Promise<IO<A>> {
+    return await IO.promiseOf(() => p);
   }
 
   public map<B>(f: (a: A) => B): IO<B> {
