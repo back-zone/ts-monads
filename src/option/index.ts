@@ -1,5 +1,4 @@
 import { IO } from "../io";
-import { None } from "./none";
 
 export abstract class Option<A> {
   public abstract get(): A;
@@ -57,5 +56,37 @@ export abstract class Option<A> {
       return this.get();
     }
     return defaultValue;
+  }
+}
+
+export class None<A> extends Option<A> {
+  public get(): A {
+    throw new Error("get() called on None");
+  }
+
+  public isDefined(): boolean {
+    return false;
+  }
+
+  static of<A>(): Option<A> {
+    return new None<A>();
+  }
+}
+
+export class Some<A> extends Option<A> {
+  constructor(private readonly value: A) {
+    super();
+  }
+
+  public get(): A {
+    return this.value;
+  }
+
+  public isDefined(): boolean {
+    return true;
+  }
+
+  static of<A>(value: A): Option<A> {
+    return new Some(value);
   }
 }

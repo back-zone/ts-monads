@@ -1,6 +1,4 @@
 import { IO } from "../io";
-import { Left } from "./left";
-import { Right } from "./right";
 
 export abstract class Either<L, R> {
   public abstract isLeft(): boolean;
@@ -73,5 +71,49 @@ export abstract class Either<L, R> {
     }
 
     return Right.of(this.right());
+  }
+}
+
+export class Left<L, R> extends Either<L, R> {
+  constructor(private readonly value: L) {
+    super();
+  }
+
+  public isLeft(): boolean {
+    return true;
+  }
+
+  public left(): L {
+    return this.value;
+  }
+
+  public right(): R {
+    throw new Error("right() called on Left");
+  }
+
+  static of<L, R>(value: L): Either<L, R> {
+    return new Left(value);
+  }
+}
+
+export class Right<L, R> extends Either<L, R> {
+  constructor(private readonly value: R) {
+    super();
+  }
+
+  public isLeft(): boolean {
+    return false;
+  }
+
+  public left(): L {
+    throw new Error("lef() called on Right");
+  }
+
+  public right(): R {
+    return this.value;
+  }
+
+  static of<L, R>(value: R): Either<L, R> {
+    return new Right(value);
   }
 }

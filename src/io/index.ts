@@ -1,12 +1,8 @@
-import { Either } from "../either";
-import { Left } from "../either/left";
-import { Right } from "../either/right";
+import { Either, Left, Right } from "../either";
 import { Option } from "../option";
 import { None } from "../option/none";
 import { Some } from "../option/some";
 import mapUnknownToError from "../utils/mapUnknownToError";
-import { Failure } from "./failure";
-import { Success } from "./sucess";
 
 export abstract class IO<A> {
   public abstract isSuccess(): boolean;
@@ -95,5 +91,53 @@ export abstract class IO<A> {
     }
 
     return None.of<A>();
+  }
+}
+
+export class Success<A> extends IO<A> {
+  constructor(private readonly value: A) {
+    super();
+  }
+
+  public isSuccess(): boolean {
+    return true;
+  }
+
+  public get(): A {
+    return this.value;
+  }
+
+  public error(): Error {
+    throw new Error("Error called on success");
+  }
+
+  static of<A>(a: A): IO<A> {
+    return new Success(a);
+  }
+}
+
+export class Failure<A> extends IO<A> {
+  constructor(private readonly value: Error) {
+    super();
+  }
+
+  public isSuccess(): boolean {
+    return false;
+  }
+
+  public get(): A {
+    throw new Error("get() called on Failure");
+  }
+
+  public error(): Error {
+    return this.value;
+  }
+
+  static catch<A>(initial: any): IO<A> {
+    return new Failure(mapUnknownToError(initial));
+  }
+
+  static of<A>(error: Error): IO<A> {
+    return new Failure(error);
   }
 }
