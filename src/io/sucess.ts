@@ -1,26 +1,23 @@
 import { IO } from ".";
 
 export class Success<A> extends IO<A> {
-  private readonly value: A;
-
-  constructor(initial: A) {
+  constructor(private readonly value: A) {
     super();
-    this.value = initial;
   }
 
-  error(): Error {
-    throw new Error("error called on success!");
-  }
-
-  get(): A {
-    return this.value;
-  }
-
-  isSuccess(): boolean {
+  public isSuccess(): boolean {
     return true;
   }
 
-  static buildFrom<A>(initial: A): Success<A> {
-    return new Success(initial);
+  public get(): A {
+    return this.value;
   }
+
+  public error(): Error {
+    throw new Error("Error called on success");
+  }
+
+  static of = <A>(a: A): Success<A> => {
+    return new Success(a);
+  };
 }

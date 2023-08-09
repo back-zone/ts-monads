@@ -2,30 +2,27 @@ import { IO } from ".";
 import mapUnknownToError from "../utils/mapUnknownToError";
 
 export class Failure<A> extends IO<A> {
-  private readonly value: Error;
-
-  constructor(initial: Error) {
+  constructor(private readonly value: Error) {
     super();
-    this.value = initial;
   }
 
-  error(): Error {
-    return this.value;
-  }
-
-  get(): A {
-    throw new Error("get called on failure!");
-  }
-
-  isSuccess(): boolean {
+  public isSuccess(): boolean {
     return false;
   }
 
-  static buildFrom<A>(initial: Error): Failure<A> {
-    return new Failure(initial);
+  public get(): A {
+    throw new Error("get() called on Failure");
   }
 
-  static fromCatch<A>(initial: any): Failure<A> {
-    return new Failure(mapUnknownToError(initial));
+  public error(): Error {
+    return this.value;
   }
+
+  static catch = <A>(initial: any): Failure<A> => {
+    return new Failure(mapUnknownToError(initial));
+  };
+
+  static fromError = <A>(error: Error): Failure<A> => {
+    return new Failure(error);
+  };
 }
