@@ -1,5 +1,5 @@
-import { FunctionParameter } from "../../dist";
 import { IO } from "../io";
+import { FunctionParameter } from "../package-types";
 
 export abstract class Option<A> {
   public abstract get(): A;
