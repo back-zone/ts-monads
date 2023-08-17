@@ -1,5 +1,6 @@
 import { Either, Left, Right } from "../either";
 import { None, Option, Some } from "../option";
+import { FunctionParameter } from "../package-types";
 import mapUnknownToError from "../utils/mapUnknownToError";
 
 export abstract class IO<A> {
@@ -9,9 +10,18 @@ export abstract class IO<A> {
 
   public abstract error(): Error;
 
-  static from<A>(f: () => A): IO<A> {
+  static from<A>(f: FunctionParameter<any[], A>): IO<A> {
     try {
-      return Success.of(f());
+      const result = f();
+      if (result instanceof Error) {
+        return Failure.catch(result);
+      }
+
+      if (result === undefined || result === null) {
+        return Failure.of(new Error("undefined"));
+      }
+
+      return Success.of(result);
     } catch (e) {
       return Failure.catch(e);
     }
@@ -21,9 +31,16 @@ export abstract class IO<A> {
     return IO.from(() => v);
   }
 
-  static async promiseOf<A>(p: () => Promise<A>): Promise<IO<A>> {
+  static async promiseOf<A>(
+    p: FunctionParameter<any[], Promise<A>>
+  ): Promise<IO<A>> {
     try {
-      const initial = await Promise.resolve(p());
+      const initial = await p();
+
+      if (initial instanceof Error) {
+        return Failure.catch(initial);
+      }
+
       return Success.of(initial);
     } catch (error) {
       return Failure.catch(error);
@@ -48,7 +65,7 @@ export abstract class IO<A> {
     return Failure.catch(this.error());
   }
 
-  public fold<B>(successFunc: (_: A) => B, errorFunc: (_: Error) => B): B {
+  public fold<B>(successFunc: (args: A) => B, errorFunc: (_: Error) => B): B {
     if (this.isSuccess()) {
       return successFunc(this.get());
     }
@@ -134,7 +151,7 @@ export class Failure<A> extends IO<A> {
     return this.value;
   }
 
-  static catch<A>(initial: any): IO<A> {
+  static catch<A>(initial: unknown): IO<A> {
     return new Failure(mapUnknownToError(initial));
   }
 

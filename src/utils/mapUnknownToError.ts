@@ -1,3 +1,5 @@
+export const buildError = (error: unknown): Error => mapUnknownToError(error);
+
 const mapUnknownToError = (error: unknown): Error => {
   if (typeof error === "string") {
     return new Error(error);
