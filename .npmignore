@@ -1,0 +1,9 @@
+#tests
+__test__
+coverage
+
+#changeset
+.changeset
+
+#github
+.github
