@@ -1,5 +1,4 @@
-import { Failure } from "../dist";
-import { IO } from "../src/io";
+import { Failure, IO } from "../src/io";
 
 type Todo = {
   userId: number;
