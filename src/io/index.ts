@@ -18,7 +18,7 @@ export abstract class IO<A> {
       }
 
       if (result === undefined || result === null) {
-        return Failure.of(new Error("undefined"));
+        return Failure.of(new Error("null/undefined"));
       }
 
       return Success.of(result);
@@ -37,11 +37,7 @@ export abstract class IO<A> {
     try {
       const initial = await p();
 
-      if (initial instanceof Error) {
-        return Failure.catch(initial);
-      }
-
-      return Success.of(initial);
+      return IO.from(() => initial);
     } catch (error) {
       return Failure.catch(error);
     }

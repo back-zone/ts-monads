@@ -1,3 +1,4 @@
+import { FunctionParameter } from "../../dist";
 import { IO } from "../io";
 
 export abstract class Option<A> {
@@ -5,7 +6,7 @@ export abstract class Option<A> {
 
   public abstract isDefined(): boolean;
 
-  static from<A>(f: () => A): Option<A> {
+  static from<A>(f: FunctionParameter<any[], A>): Option<A> {
     return IO.from(f).toOption();
   }
 
@@ -13,14 +14,14 @@ export abstract class Option<A> {
     return IO.pure(v).toOption();
   }
 
-  static promiseOf<A>(p: () => Promise<A>): Promise<Option<A>> {
-    return p()
-      .then((a) => Option.pure(a))
-      .catch((_) => None.of<A>());
+  static async promiseOf<A>(
+    p: FunctionParameter<any[], Promise<A>>
+  ): Promise<Option<A>> {
+    return (await IO.promiseOf(p)).toOption();
   }
 
-  static promise<A>(p: Promise<A>): Promise<Option<A>> {
-    return Option.promiseOf(() => p);
+  static async promise<A>(p: Promise<A>): Promise<Option<A>> {
+    return await Option.promiseOf(() => p);
   }
 
   public map<B>(f: (a: A) => B): Option<B> {

@@ -1,4 +1,5 @@
 import { IO } from "../io";
+import { FunctionParameter } from "../package-types";
 
 export abstract class Either<L, R> {
   public abstract isLeft(): boolean;
@@ -7,7 +8,7 @@ export abstract class Either<L, R> {
 
   public abstract right(): R;
 
-  static from<R>(f: () => R): Either<Error, R> {
+  static from<R>(f: FunctionParameter<any[], R>): Either<Error, R> {
     return IO.from(f).toEither();
   }
 
@@ -15,14 +16,14 @@ export abstract class Either<L, R> {
     return IO.pure(v).toEither();
   }
 
-  static promiseOf<R>(p: () => Promise<R>): Promise<Either<Error, R>> {
-    return p()
-      .then((r) => Either.pure(r))
-      .catch((error) => Left.of(error));
+  static async promiseOf<R>(
+    p: FunctionParameter<any[], Promise<R>>
+  ): Promise<Either<Error, R>> {
+    return (await IO.promiseOf(p)).toEither();
   }
 
-  static promise<R>(p: Promise<R>): Promise<Either<Error, R>> {
-    return Either.promiseOf(() => p);
+  static async promise<R>(p: Promise<R>): Promise<Either<Error, R>> {
+    return await Either.promiseOf(() => p);
   }
 
   public map<B>(f: (a: R) => B): Either<L, B> {

@@ -56,6 +56,8 @@ const orElseFailure = (str: string): string => {
 };
 const promiseSuccess = (): Promise<string> => Promise.resolve("success");
 const promiseSuccess2 = (str: string): Promise<string> => Promise.resolve(str);
+const promiseNull = async (str: string): Promise<string | null> =>
+  Promise.resolve(null);
 const promiseFailure = (): Promise<Error> =>
   Promise.reject(new Error("failure"));
 const promiseThrowFailure = (): Promise<void> => {
@@ -165,6 +167,12 @@ describe("IO", () => {
 
       expect(result.isSuccess()).toBe(false);
       expect(result.error()).not.toBeNull();
+    });
+    it("should return a Failure from a null result", async () => {
+      const result = await IO.promiseOf(() => promiseNull(str));
+
+      expect(result.isSuccess()).toBe(false);
+      expect(result.error()).toStrictEqual(new Error("null/undefined"));
     });
     it("RW: should combine successful call of a previous fetch IO and then return Todo", async () => {
       const result = await makeCall(
